@@ -125,4 +125,5 @@ describe(ParkingFareService.name, () => {
       ).toBe(5040);
     });
   });
+
 });
