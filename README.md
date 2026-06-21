@@ -59,18 +59,25 @@ PORT=8080 npm start
 - **[tsx](https://tsx.is/)** — TypeScript execution with watch mode for local development
 - **[tsup](https://tsup.egoist.dev/)** — esbuild-based bundler for the production build
 - **[Biome](https://biomejs.dev/)** — Formatting and linting
+- **[date-fns](https://date-fns.org/)** — Date utility library
 
 ## Project Structure
 
 ```
 src/
-├── app.ts                          # Express app (middleware + routes)
-├── server.ts                       # Process entry point
-├── container.ts                    # InversifyJS IoC container
-├── constants/                      # Shared enums (HTTP status codes, parking domain values)
-├── data/                           # Seed/mock data (e.g. initial parking slot layout)
-├── routes/                         # Express route handlers
-└── services/                       # Business logic and mock in-memory database service
+├── app.ts               # Express app (middleware + routes)
+├── server.ts            # Process entry point
+├── container.ts         # InversifyJS IoC container bindings
+├── routes.ts            # Route → controller wiring
+├── constants/           # Shared enums (HTTP status codes, parking domain values)
+├── controllers/         # Express route handlers
+├── data/                # Seed data (e.g. initial parking slot layout)
+├── database/
+│   ├── models/          # Domain models
+│   └── repositories/    # Repository interface and implementations (data access layer)
+├── services/            # Business logic (parking lot, fare calculation, mock in-memory DB)
+├── types/               # Shared TypeScript types
+└── utils/               # Pure helper functions (date math, etc.)
 ```
 
 ## License
