@@ -5,6 +5,7 @@ export enum VEHICLE_TYPE {
 }
 
 export enum PARKING_SLOT_TYPE {
+  ENTRANCE = 'E',
   SMALL = 'SP',
   MEDIUM = 'MP',
   LARGE = 'LP',

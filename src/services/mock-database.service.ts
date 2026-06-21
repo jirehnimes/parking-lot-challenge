@@ -3,6 +3,7 @@ export class MockDatabaseService {
   private database: Map<string, any>;
 
   constructor() {
+    console.log('INITIALIZING MOCK DATABASE');
     this.database = new Map();
   };
 

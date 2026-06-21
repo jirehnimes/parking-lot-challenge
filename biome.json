@@ -5,6 +5,13 @@
     "indentStyle": "space",
     "lineWidth": 100
   },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
   "javascript": {
     "formatter": {
       "quoteStyle": "single"
