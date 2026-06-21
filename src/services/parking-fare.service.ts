@@ -30,10 +30,7 @@ export class ParkingFareService {
     let computedFare = 0;
 
     computedFare += this.computeExceedFullDay(timeDifference);
-
-    if (timeDifference > this.FULL_DAY_HOURS || timeDifference % this.FULL_DAY_HOURS > 0) {
-      computedFare += this.computeExceedHours(parkingSlotType, timeDifference);
-    }
+    computedFare += this.computeExceedHours(parkingSlotType, timeDifference);
 
     return computedFare;
   }
