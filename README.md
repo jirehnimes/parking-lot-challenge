@@ -2,6 +2,25 @@
 
 A Node.js REST API built with Express, TypeScript, and InversifyJS.
 
+## Layout
+
+Initial layout of the parking lot complex with 1 floor for now.
+
+| Row | Col 0 | Col 1 | Col 2 | Col 3 | Col 4 |
+|---|---|---|---|---|---|
+| 0 | SMALL | SMALL | ENTRANCE | SMALL | SMALL |
+| 1 | SMALL | SMALL | SMALL | SMALL | SMALL |
+| 2 | ENTRANCE | MEDIUM | MEDIUM | MEDIUM | MEDIUM |
+| 3 | MEDIUM | MEDIUM | MEDIUM | MEDIUM | MEDIUM |
+| 4 | LARGE | LARGE | ENTRANCE | LARGE | LARGE |
+
+## Assumptions
+
+- Entry/exit points are automated and can identify the car and its details (e.g., license plate, entry time) when it enters or leaves the parking lot complex.
+- When a car enters the parking lot complex, the sensor triggers the parkCar method.
+- When a car leaves the parking lot complex, the sensor triggers the unparkCar method.
+- Even if the car leaves the parking slot but never triggers the unparkCar method (e.g., due to sensor failure), it is still considered as parked in the parking lot complex until the unparkCar method is triggered.
+
 ## Requirements
 
 - Node.js >= 20
@@ -14,6 +33,11 @@ npm install
 ```
 
 ## Usage
+
+### Testing
+
+- You can run the e2e test file in `src/tests`.
+- Or use the Postman collection included in the repository.
 
 ### Development
 

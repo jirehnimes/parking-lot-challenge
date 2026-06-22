@@ -1,0 +1,146 @@
+{
+  "info": {
+    "_postman_id": "9e0fa930-e42d-48fe-bd7f-70e98332da90",
+    "name": "Parking Lot Challenge",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "19036957"
+  },
+  "item": [
+    {
+      "name": "health-check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/health-check",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "health-check"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "parking-lot/slots",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/parking-lot/slots",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "parking-lot",
+            "slots"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "parking-transaction",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/parking-transaction",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "parking-transaction"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "parking-lot/park",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"entranceID\": \"E010002\",\r\n    \"vehicleType\": \"S\",\r\n    \"licensePlate\": \"ABC123\",\r\n    \"entryTime\": \"2026-06-22T08:13:01.254Z\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/parking-lot/park",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "parking-lot",
+            "park"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "parking-lot/unpark",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"licensePlate\": \"ABC123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/parking-lot/unpark",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "parking-lot",
+            "unpark"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": ""
+    }
+  ]
+}
