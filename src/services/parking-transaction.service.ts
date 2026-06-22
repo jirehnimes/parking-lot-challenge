@@ -12,7 +12,7 @@ export class ParkingTransactionService {
     logClassInitialized(ParkingTransactionService.name);
   }
 
-  async getAllParkingTransactions(): Promise<TParkingTransaction[]> {
+  async getAll(): Promise<TParkingTransaction[]> {
     return await this.parkingTransactionRepository.allParkingTransactions();
   }
 

@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import { ParkCarRequestDto, UnparkCarRequestDto } from '@/dto/parking-lot.dto';
 import { ParkingLotService } from '@/services';
-import { logClassInitialized } from '@/utils/common.util';
+import { autoBindMethods, logClassInitialized, setBadRequestResponse } from '@/utils/common.util';
 import { ValidateRequest } from '@/validators/request.validator';
 
 @injectable()
@@ -11,30 +11,40 @@ export class ParkingLotController {
   private parkingLotService!: ParkingLotService;
 
   constructor() {
-    this.getAllParkingSlots = this.getAllParkingSlots.bind(this);
-    this.parkCar = this.parkCar.bind(this);
-    this.unparkCar = this.unparkCar.bind(this);
+    autoBindMethods(this);
 
     logClassInitialized(ParkingLotController.name);
   }
 
-  async getAllParkingSlots(request: Request, response: Response) {
-    const data = await this.parkingLotService.getAllParkingSlots();
+  async getAll(request: Request, response: Response) {
+    try {
+      const data = await this.parkingLotService.getAll();
 
-    response.json({ data });
+      response.json({ data });
+    } catch (error) {
+      setBadRequestResponse(response, error as Error);
+    }
   }
 
   @ValidateRequest(ParkCarRequestDto)
   async parkCar(request: Request, response: Response) {
-    const data = await this.parkingLotService.parkCar(request.body);
+    try {
+      const data = await this.parkingLotService.parkCar(request.body);
 
-    response.json({ data });
+      response.json({ data });
+    } catch (error) {
+      setBadRequestResponse(response, error as Error);
+    }
   }
 
   @ValidateRequest(UnparkCarRequestDto)
   async unparkCar(request: Request, response: Response) {
-    const data = await this.parkingLotService.unparkCar(request.body);
+    try {
+      const data = await this.parkingLotService.unparkCar(request.body);
 
-    response.json({ data });
+      response.json({ data });
+    } catch (error) {
+      setBadRequestResponse(response, error as Error);
+    }
   }
 }

@@ -86,7 +86,7 @@ export class ParkingLotService {
     return updatedParkingTransaction;
   }
 
-  async getAllParkingSlots(): Promise<TParkingSlot[]> {
+  async getAll(): Promise<TParkingSlot[]> {
     return await this.parkingLotRepository.allParkingSlots();
   }
 }

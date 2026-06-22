@@ -1,10 +1,12 @@
 import type { Request, Response } from 'express';
 import { injectable } from 'inversify';
-import { logClassInitialized } from '@/utils/common.util';
+import { autoBindMethods, logClassInitialized } from '@/utils/common.util';
 
 @injectable()
 export class AppController {
   constructor() {
+    autoBindMethods(this);
+
     logClassInitialized(AppController.name);
   }
 
