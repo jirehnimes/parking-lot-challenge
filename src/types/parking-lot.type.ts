@@ -9,7 +9,9 @@ export type TParkingVehicleRequest = {
 export type TParkingSlotLocation = [number, number];
 
 export type TParkingSlot = {
+  id: string;
   type: PARKING_SLOT_TYPE,
   status: PARKING_SLOT_STATUS,
-  location: TParkingSlotLocation,
+  floor: number;
+  location: TParkingSlotLocation;
 };

@@ -1,14 +1,21 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: As a mock database, we can use any type for the data stored in the tables. */
-export class MockDatabaseService {
+import { injectable } from 'inversify';
+import { logClassInitialized } from '@/utils/common.util';
+
+@injectable()
+export class DatabaseService {
   private database: Map<string, any>;
 
   constructor() {
-    console.log('INITIALIZING MOCK DATABASE');
+    logClassInitialized(DatabaseService.name);
     this.database = new Map();
-  };
+  }
 
   createTable(tableName: string, data?: any[]): void {
-    this.database.set(tableName, data || []);
+    // Create a new table if it doesn't exist, otherwise do nothing
+    if (!this.database.has(tableName)) {
+      this.database.set(tableName, data || []);
+    }
   }
 
   getTableData(tableName: string): any[] {

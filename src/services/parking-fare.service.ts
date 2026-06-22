@@ -1,4 +1,5 @@
 import { PARKING_SLOT_TYPE } from '@/constants/parking.constant';
+import { logClassInitialized } from '@/utils/common.util';
 import { countFullDaysFromHours, differenceInHours } from '@/utils/date.util';
 
 // Timezone is not considered in this implementation since the parking system is assumed to be used in a single timezone.
@@ -12,6 +13,10 @@ export class ParkingFareService {
   MEDIUM_EXCESS_RATE = 60;
   LARGE_EXCESS_RATE = 100;
   FULL_DAY_RATE = 5000;
+
+  constructor() {
+    logClassInitialized(ParkingFareService.name);
+  }
 
   calculateFare(parkingSlotType: PARKING_SLOT_TYPE, entryTime: Date): number {
     // Compute difference in hours then round up.
