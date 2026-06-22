@@ -60,6 +60,8 @@ PORT=8080 npm start
 - **[tsup](https://tsup.egoist.dev/)** — esbuild-based bundler for the production build
 - **[Biome](https://biomejs.dev/)** — Formatting and linting
 - **[date-fns](https://date-fns.org/)** — Date utility library
+- **[class-validator](https://github.com/typestack/class-validator)** — Decorator-based request payload validation
+- **[class-transformer](https://github.com/typestack/class-transformer)** — Plain object → DTO class instance transformation
 
 ## Project Structure
 
@@ -72,12 +74,14 @@ src/
 ├── constants/           # Shared enums (HTTP status codes, parking domain values)
 ├── controllers/         # Express route handlers
 ├── data/                # Seed data (e.g. initial parking slot layout)
-├── database/
+├── database/            # Models, repositories, and the in-memory mock database service
 │   ├── models/          # Domain models
 │   └── repositories/    # Repository interface and implementations (data access layer)
-├── services/            # Business logic (parking lot, fare calculation, mock in-memory DB)
+├── dto/                 # Request payload DTOs (validated via class-validator)
+├── services/            # Business logic (parking slot/lot, transactions, fare calculation)
 ├── types/               # Shared TypeScript types
-└── utils/               # Pure helper functions (date math, etc.)
+├── utils/               # Pure helper functions (date math, etc.)
+└── validators/          # Decorators for DTO-based request validation
 ```
 
 ## License
