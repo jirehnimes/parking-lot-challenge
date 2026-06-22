@@ -2,6 +2,14 @@
 import { injectable } from 'inversify';
 import { logClassInitialized } from '@/utils/common.util';
 
+/**
+ * A simple in-memory database service that uses a Map to store tables and their data.
+ * Each table is represented as an array of records.
+ * This service can easily be replaced with a real database like MariaDB
+ * without affecting the rest of the application, as long as the same interface is maintained.
+ *
+ * Note: This implementation is not thread-safe and is intended for demonstration purposes only.
+ */
 @injectable()
 export class DatabaseService {
   private database: Map<string, any>;

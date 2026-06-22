@@ -1,10 +1,11 @@
 import 'reflect-metadata';
 import { Container } from 'inversify';
-import { AppController, ParkingLotController } from './controllers';
+import { AppController, ParkingLotController, ParkingTransactionController } from './controllers';
 import { DatabaseService } from './database/database.service';
-import { ParkingLotModel } from './database/models/parking-lot.model';
-import { ParkingLotRepository } from './database/repositories';
+import { ParkingLotModel, ParkingTransactionModel } from './database/models';
+import { ParkingLotRepository, ParkingTransactionRepository } from './database/repositories';
 import { AppService, ParkingFareService, ParkingLotService, ParkingSlotService } from './services';
+import { ParkingTransactionService } from './services/parking-transaction.service';
 
 const container = new Container();
 
@@ -18,14 +19,18 @@ container.bind(AppService).toSelf().inSingletonScope();
 
 // Parking:
 container.bind(ParkingLotModel).toSelf().inSingletonScope();
+container.bind(ParkingTransactionModel).toSelf().inSingletonScope();
 container.bind(ParkingLotRepository).toSelf().inSingletonScope();
+container.bind(ParkingTransactionRepository).toSelf().inSingletonScope();
 container.bind(ParkingFareService).toSelf().inSingletonScope();
 container.bind(ParkingSlotService).toSelf().inSingletonScope();
 container.bind(ParkingLotService).toSelf().inSingletonScope();
+container.bind(ParkingTransactionService).toSelf().inSingletonScope();
 
 // Controllers:
 container.bind(AppController).toSelf().inRequestScope();
 container.bind(ParkingLotController).toSelf().inRequestScope();
+container.bind(ParkingTransactionController).toSelf().inRequestScope();
 
 container.get(DatabaseService);
 container.get(AppService);

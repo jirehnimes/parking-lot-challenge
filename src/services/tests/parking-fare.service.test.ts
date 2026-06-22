@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { PARKING_SLOT_TYPE } from '@/constants/parking.constant';
-import { ParkingFareService } from '@/services/parking-fare.service';
+import { PARKING_SLOT_TYPE } from '@/constants';
+import { ParkingFareService } from '@/services';
 
 const NOW = new Date('2024-01-01T00:00:00.000Z');
 

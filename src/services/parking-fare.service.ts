@@ -1,4 +1,4 @@
-import { PARKING_SLOT_TYPE } from '@/constants/parking.constant';
+import { PARKING_SLOT_TYPE } from '@/constants';
 import { logClassInitialized } from '@/utils/common.util';
 import { countFullDaysFromHours, differenceInHours } from '@/utils/date.util';
 

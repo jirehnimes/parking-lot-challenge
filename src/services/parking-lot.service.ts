@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { VEHICLE_TYPE } from '@/constants/parking.constant';
+import { VEHICLE_TYPE } from '@/constants';
 import { ParkingLotRepository } from '@/database/repositories';
 import type { TParkingSlot } from '@/types/parking-lot.type';
 import { logClassInitialized } from '@/utils/common.util';
@@ -32,7 +32,7 @@ export class ParkingLotService {
   //   ]
   // },
   async parkCar(): Promise<any> {
-    await this.parkingSlotService.findNearestAvailable('E010002', VEHICLE_TYPE.SMALL);
+    const nearestParkingSlot = await this.parkingSlotService.findNearestAvailable('E010002', VEHICLE_TYPE.SMALL);
 
     return 'test';
   }

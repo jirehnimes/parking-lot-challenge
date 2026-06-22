@@ -1,25 +1,18 @@
 import { inject, injectable, postConstruct } from 'inversify';
-import { PARKING_SLOT_STATUS, PARKING_SLOT_TYPE } from '@/constants';
-import type { TParkingSlot } from '@/types/parking-lot.type';
+import type { TParkingTransaction } from '@/types/parking-transaction.type';
 import { logClassInitialized } from '@/utils/common.util';
 import { DatabaseService } from '../database.service';
 import type { Model } from './model';
 
 @injectable()
-export class ParkingLotModel implements Model<TParkingSlot> {
+export class ParkingTransactionModel implements Model<TParkingTransaction> {
   @inject(DatabaseService)
   private databaseService!: DatabaseService;
 
-  TABLE_NAME = 'parking_lot';
-
-  // Fields
-  id!: string;
-  floor!: number;
-  type: PARKING_SLOT_TYPE = PARKING_SLOT_TYPE.SMALL;
-  status: PARKING_SLOT_STATUS = PARKING_SLOT_STATUS.AVAILABLE;
+  TABLE_NAME = 'parking_transaction';
 
   constructor() {
-    logClassInitialized(ParkingLotModel.name);
+    logClassInitialized(ParkingTransactionModel.name);
   }
 
   @postConstruct()
@@ -27,15 +20,15 @@ export class ParkingLotModel implements Model<TParkingSlot> {
     this.databaseService.createTable(this.TABLE_NAME);
   }
 
-  async create(parkingSlot: TParkingSlot): Promise<TParkingSlot> {
+  async create(parkingTransaction: TParkingTransaction): Promise<TParkingTransaction> {
     const currentData = this.databaseService.getTableData(this.TABLE_NAME);
-    const newData = [...currentData, parkingSlot];
+    const newData = [...currentData, parkingTransaction];
     this.databaseService.updateTableData(this.TABLE_NAME, newData);
 
-    return await parkingSlot;
+    return await parkingTransaction;
   }
 
-  async update(id: string, item: Partial<TParkingSlot>): Promise<TParkingSlot | null> {
+  async update(id: string, item: Partial<TParkingTransaction>): Promise<TParkingTransaction | null> {
     throw new Error('Method not implemented.');
   }
 
@@ -43,11 +36,8 @@ export class ParkingLotModel implements Model<TParkingSlot> {
     throw new Error('Method not implemented.');
   }
 
-  async findById(id: string): Promise<TParkingSlot | null> {
-    const parkingSlots = await this.databaseService.getTableData(this.TABLE_NAME);
-    const parkingSlot = parkingSlots.find((slot) => slot.id === id);
-
-    return parkingSlot || null;
+  async findById(id: string): Promise<TParkingTransaction | null> {
+    throw new Error('Method not implemented.');
   }
 
   /**
@@ -56,7 +46,7 @@ export class ParkingLotModel implements Model<TParkingSlot> {
    *
    * @returns An array of all parking slots.
    */
-  async findAll(): Promise<TParkingSlot[]> {
+  async findAll(): Promise<TParkingTransaction[]> {
     return await this.databaseService.getTableData(this.TABLE_NAME);
   }
 }

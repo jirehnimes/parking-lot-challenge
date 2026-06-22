@@ -1,5 +1,5 @@
 import { inject, injectable, postConstruct } from 'inversify';
-import { PARKING_SLOT_STATUS, type PARKING_SLOT_TYPE } from '@/constants/parking.constant';
+import { PARKING_SLOT_STATUS, PARKING_SLOT_TYPE } from '@/constants';
 import { parkingLotLayout } from '@/data/parking-lot.data';
 import type { TParkingSlot } from '@/types/parking-lot.type';
 import { logClassInitialized } from '@/utils/common.util';
@@ -63,7 +63,8 @@ export class ParkingLotRepository {
     const parkingSlots = await this.parkingLotModel.findAll();
 
     return parkingSlots.filter(
-      (slot: TParkingSlot) => slot.status === PARKING_SLOT_STATUS.AVAILABLE,
+      (slot: TParkingSlot) => slot.status === PARKING_SLOT_STATUS.AVAILABLE
+        && slot.type !== PARKING_SLOT_TYPE.ENTRANCE,
     );
   }
 

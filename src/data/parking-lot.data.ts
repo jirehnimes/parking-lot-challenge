@@ -1,4 +1,4 @@
-import { PARKING_SLOT_TYPE } from '@/constants/parking.constant';
+import { PARKING_SLOT_TYPE } from '@/constants';
 
 export const parkingLotLayout: PARKING_SLOT_TYPE[][][] = [
   // Floor 1 5x5 - 22 slots

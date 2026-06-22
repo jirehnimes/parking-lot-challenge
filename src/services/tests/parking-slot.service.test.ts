@@ -1,23 +1,26 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { PARKING_SLOT_STATUS, PARKING_SLOT_TYPE, VEHICLE_TYPE } from '@/constants/parking.constant';
+import { PARKING_SLOT_STATUS, PARKING_SLOT_TYPE, VEHICLE_TYPE } from '@/constants';
 import { ParkingSlotService } from '@/services/parking-slot.service';
 import type { TParkingSlot } from '@/types/parking-lot.type';
 import { parkingLotTableMock } from './mocks/parking-lot-table.mock';
 
 /**
- * `findNearestAvailable` is currently an empty stub, so these tests encode the contract it
- * needs to satisfy:
+ * ParkingSlotService.findNearestAvailable depends on ParkingLotRepository's:
+ * - `findParkingSlotByID` to resolve the entrance's location.
+ * - `allAvailableParkingSlots` to get candidate slots (already AVAILABLE and non-entrance).
  *
- * - Slots are read through an injected `parkingLotRepository` (mirrors ParkingLotService), so
- *   tests stub `parkingLotRepository.allParkingSlots()` instead of hitting a real database.
- * - Distance between an entrance and a candidate slot is Manhattan distance over `location`.
- * - Ties are broken by scan order: the first slot reaching the lowest distance wins.
- * - Entry points (type `E`) are never assignable, regardless of their status.
- * - Returns `null` when no compatible, available slot exists.
+ * `givenParkingLot` stubs both from one slot list, mirroring the repository's own filtering
+ * (status AVAILABLE, type !== ENTRANCE), so the mock stays faithful to the real contract.
+ *
+ * Distance is Euclidean over `location`; ties are broken by scan order (first slot reaching
+ * the lowest distance wins).
  */
 
 type StubbedParkingSlotService = Omit<ParkingSlotService, 'parkingLotRepository'> & {
-  parkingLotRepository: { allParkingSlots: ReturnType<typeof jest.fn> };
+  parkingLotRepository: {
+    findParkingSlotByID: ReturnType<typeof jest.fn>;
+    allAvailableParkingSlots: ReturnType<typeof jest.fn>;
+  };
 };
 
 const cloneSlots = (): TParkingSlot[] => JSON.parse(JSON.stringify(parkingLotTableMock));
@@ -33,15 +36,26 @@ const occupy = (slots: TParkingSlot[], ids: string[]): TParkingSlot[] => {
 describe(ParkingSlotService.name, () => {
   let parkingSlotService: StubbedParkingSlotService;
 
-  const givenSlots = (slots: TParkingSlot[]) => {
-    parkingSlotService.parkingLotRepository.allParkingSlots.mockResolvedValue(slots);
+  const givenParkingLot = (slots: TParkingSlot[]) => {
+    parkingSlotService.parkingLotRepository.findParkingSlotByID.mockImplementation(
+      async (id: string) => slots.find((slot) => slot.id === id) ?? null,
+    );
+    parkingSlotService.parkingLotRepository.allAvailableParkingSlots.mockResolvedValue(
+      slots.filter(
+        (slot) =>
+          slot.status === PARKING_SLOT_STATUS.AVAILABLE && slot.type !== PARKING_SLOT_TYPE.ENTRANCE,
+      ),
+    );
   };
 
   beforeEach(() => {
     parkingSlotService = new ParkingSlotService() as unknown as StubbedParkingSlotService;
-    parkingSlotService.parkingLotRepository = { allParkingSlots: jest.fn() };
+    parkingSlotService.parkingLotRepository = {
+      findParkingSlotByID: jest.fn(),
+      allAvailableParkingSlots: jest.fn(),
+    };
 
-    givenSlots(cloneSlots());
+    givenParkingLot(cloneSlots());
   });
 
   describe('vehicle-to-slot compatibility', () => {
@@ -52,7 +66,7 @@ describe(ParkingSlotService.name, () => {
     });
 
     it('parks a medium (M) vehicle in a medium or large slot, never a small one', async () => {
-      // The overall closest slot to E010002 is SP010001 (distance 1), but M vehicles cannot use SP.
+      // The overall closest slot to E010002 is SP010001, but M vehicles cannot use SP.
       const slot = await parkingSlotService.findNearestAvailable('E010002', VEHICLE_TYPE.MEDIUM);
 
       expect(slot?.id).toBe('MP010202');
@@ -60,7 +74,6 @@ describe(ParkingSlotService.name, () => {
     });
 
     it('parks a large (L) vehicle in a large slot only, bypassing much closer small/medium slots', async () => {
-      // Closest SP slot to E010002 is at distance 1; the nearest LP slot is at distance 5.
       const slot = await parkingSlotService.findNearestAvailable('E010002', VEHICLE_TYPE.LARGE);
 
       expect(slot?.id).toBe('LP010401');
@@ -68,11 +81,11 @@ describe(ParkingSlotService.name, () => {
     });
 
     it('never assigns a large (L) vehicle to a small or medium slot, even if every large slot is taken', async () => {
-      givenSlots(occupy(cloneSlots(), ['LP010400', 'LP010401', 'LP010403', 'LP010404']));
+      givenParkingLot(occupy(cloneSlots(), ['LP010400', 'LP010401', 'LP010403', 'LP010404']));
 
-      const slot = await parkingSlotService.findNearestAvailable('E010002', VEHICLE_TYPE.LARGE);
-
-      expect(slot).toBeNull();
+      await expect(
+        parkingSlotService.findNearestAvailable('E010002', VEHICLE_TYPE.LARGE),
+      ).rejects.toThrow('No available parking slots for the specified vehicle type.');
     });
 
     it('lets a small (S) vehicle use a closer slot that a medium (M) vehicle is not allowed to use', async () => {
@@ -93,7 +106,7 @@ describe(ParkingSlotService.name, () => {
     });
 
     it('falls back to the next-closest slot when the nearest one is already occupied', async () => {
-      givenSlots(occupy(cloneSlots(), ['SP010001']));
+      givenParkingLot(occupy(cloneSlots(), ['SP010001']));
 
       const slot = await parkingSlotService.findNearestAvailable('E010002', VEHICLE_TYPE.SMALL);
 
@@ -102,17 +115,23 @@ describe(ParkingSlotService.name, () => {
   });
 
   describe('entry points', () => {
-    it('never falls back to an entry point, even though entrances are always available', async () => {
-      // Occupy every non-entrance slot. Without explicit exclusion, an entrance would otherwise
-      // be returned since it is the only slot left with status AVAILABLE.
+    it('throws when the given entrance ID does not exist in the parking lot', async () => {
+      await expect(
+        parkingSlotService.findNearestAvailable('E999999', VEHICLE_TYPE.SMALL),
+      ).rejects.toThrow('Entrance with ID E999999 not found.');
+    });
+
+    it('never falls back to an entry point, even though entry points are excluded from "available" slots', async () => {
+      // Occupy every non-entrance slot, leaving only entrances. allAvailableParkingSlots already
+      // excludes entrances by type, so this should surface as "no available slots", not the entrance.
       const nonEntranceIds = parkingLotTableMock
         .filter((slot) => slot.type !== PARKING_SLOT_TYPE.ENTRANCE)
         .map((slot) => slot.id);
-      givenSlots(occupy(cloneSlots(), nonEntranceIds));
+      givenParkingLot(occupy(cloneSlots(), nonEntranceIds));
 
-      const slot = await parkingSlotService.findNearestAvailable('E010002', VEHICLE_TYPE.SMALL);
-
-      expect(slot).toBeNull();
+      await expect(
+        parkingSlotService.findNearestAvailable('E010002', VEHICLE_TYPE.SMALL),
+      ).rejects.toThrow('No available parking slots for the specified vehicle type.');
     });
 
     it('supports at least the three entrances present in the base layout', async () => {
@@ -131,7 +150,7 @@ describe(ParkingSlotService.name, () => {
 
     it('supports entrances added after the initial layout, not just the original three', async () => {
       // The mall can add new entrances later; the lookup must not assume a fixed set of entrance IDs.
-      givenSlots([
+      givenParkingLot([
         { id: 'E020000', type: PARKING_SLOT_TYPE.ENTRANCE, status: PARKING_SLOT_STATUS.AVAILABLE, floor: 2, location: [0, 0] },
         { id: 'SP020001', type: PARKING_SLOT_TYPE.SMALL, status: PARKING_SLOT_STATUS.AVAILABLE, floor: 2, location: [0, 1] },
         { id: 'SP020010', type: PARKING_SLOT_TYPE.SMALL, status: PARKING_SLOT_STATUS.AVAILABLE, floor: 2, location: [1, 0] },

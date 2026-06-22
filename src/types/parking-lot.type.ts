@@ -1,9 +1,9 @@
-import type { PARKING_SLOT_STATUS, PARKING_SLOT_TYPE, VEHICLE_TYPE } from '@/constants/parking.constant';
+import type { PARKING_SLOT_STATUS, PARKING_SLOT_TYPE, VEHICLE_TYPE } from '@/constants';
 
 export type TParkingVehicleRequest = {
   vehicleType: VEHICLE_TYPE;
   licensePlate: string;
-  entryTime: Date;
+  entryTime: string;
 };
 
 export type TParkingSlotLocation = [number, number];
