@@ -28,8 +28,23 @@ export class ParkingTransactionModel implements Model<TParkingTransaction> {
     return await parkingTransaction;
   }
 
-  async update(id: string, item: Partial<TParkingTransaction>): Promise<TParkingTransaction | null> {
-    throw new Error('Method not implemented.');
+  async update(id: string, parkingTransaction: Partial<TParkingTransaction>): Promise<TParkingTransaction | null> {
+    const existingParkingTransaction = await this.findById(id);
+
+    if (!existingParkingTransaction) {
+      return null;
+    }
+
+    const updatedParkingTransaction: TParkingTransaction = {
+      ...existingParkingTransaction,
+      ...parkingTransaction,
+    };
+
+    const currentData = this.databaseService.getTableData(this.TABLE_NAME);
+    const newData = currentData.map((transaction) => (transaction.id === id ? updatedParkingTransaction : transaction));
+    this.databaseService.updateTableData(this.TABLE_NAME, newData);
+
+    return updatedParkingTransaction;
   }
 
   async delete(id: string): Promise<boolean> {
@@ -37,7 +52,10 @@ export class ParkingTransactionModel implements Model<TParkingTransaction> {
   }
 
   async findById(id: string): Promise<TParkingTransaction | null> {
-    throw new Error('Method not implemented.');
+    const parkingTransactions = await this.databaseService.getTableData(this.TABLE_NAME);
+    const parkingTransaction = parkingTransactions.find((transaction) => transaction.id === id);
+
+    return parkingTransaction || null;
   }
 
   /**

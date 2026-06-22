@@ -13,7 +13,7 @@ export class ParkingSlotService {
     logClassInitialized(ParkingSlotService.name);
   }
 
-  async findNearestAvailable(entranceID: string, vehicleType: VEHICLE_TYPE): Promise<any> {
+  async findNearestAvailable(entranceID: string, vehicleType: VEHICLE_TYPE): Promise<TParkingSlot> {
     const entrance = await this.parkingLotRepository.findParkingSlotByID(entranceID);
     const availableParkingSlots = await this.filterParkingSlotsByVehicleType(vehicleType);
 
@@ -53,8 +53,9 @@ export class ParkingSlotService {
   private computeAndGetNearestParkingSlot(
     entrance: TParkingSlot,
     availableParkingSlots: TParkingSlot[],
-  ): TParkingSlot | null {
-    let nearestParkingSlot: TParkingSlot | null = null;
+  ): TParkingSlot {
+    // Initialize with the first available parking slot as the nearest one.
+    let nearestParkingSlot: TParkingSlot = availableParkingSlots[0];
     // Initialize minDistance to a large value to ensure any actual distance will be smaller.
     let minDistance = Number.MAX_SAFE_INTEGER;
 

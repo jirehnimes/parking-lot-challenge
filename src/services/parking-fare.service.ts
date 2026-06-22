@@ -18,9 +18,9 @@ export class ParkingFareService {
     logClassInitialized(ParkingFareService.name);
   }
 
-  calculateFare(parkingSlotType: PARKING_SLOT_TYPE, entryTime: Date): number {
+  calculateFare(parkingSlotType: PARKING_SLOT_TYPE, entryTime: Date, exitTime: Date): number {
     // Compute difference in hours then round up.
-    const timeDifference = Math.ceil(differenceInHours(new Date(), entryTime));
+    const timeDifference = Math.ceil(differenceInHours(exitTime, entryTime));
 
     // If the time difference is less than or equal to the flat rate hours, return the flat rate immediately.
     if (timeDifference <= this.FLAT_RATE_HOURS) {
