@@ -15,7 +15,7 @@ export class ParkingSlotService {
 
   async findNearestAvailable(entranceID: string, vehicleType: VEHICLE_TYPE): Promise<TParkingSlot> {
     const entrance = await this.parkingLotRepository.findParkingSlotByID(entranceID);
-    const availableParkingSlots = await this.filterParkingSlotsByVehicleType(vehicleType);
+    const availableParkingSlots = await this.filterByVehicleType(vehicleType);
 
     if (!entrance) {
       throw new Error(`Entrance with ID ${entranceID} not found.`);
@@ -40,7 +40,7 @@ export class ParkingSlotService {
     return await this.parkingLotRepository.updateStatus(parkingSlotID, status);
   }
 
-  private async filterParkingSlotsByVehicleType(
+  private async filterByVehicleType(
     vehicleType: VEHICLE_TYPE,
   ): Promise<TParkingSlot[]> {
     const availableParkingSlots = await this.parkingLotRepository.allAvailableParkingSlots();

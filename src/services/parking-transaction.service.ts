@@ -13,18 +13,18 @@ export class ParkingTransactionService {
   }
 
   async getAll(): Promise<TParkingTransaction[]> {
-    return await this.parkingTransactionRepository.allParkingTransactions();
+    return await this.parkingTransactionRepository.findAll();
   }
 
-  async findParkingTransactionByLicensePlate(licensePlate: string): Promise<TParkingTransaction | null> {
-    return await this.parkingTransactionRepository.findParkingTransactionByLicensePlate(licensePlate);
+  async findActiveByLicensePlate(licensePlate: string): Promise<TParkingTransaction | null> {
+    return await this.parkingTransactionRepository.findActiveByLicensePlate(licensePlate);
   }
 
-  async createParkingTransaction(parkingTransaction: TCreateParkingTransaction): Promise<TParkingTransaction> {
-    return await this.parkingTransactionRepository.createParkingTransaction(parkingTransaction);
+  async create(parkingTransaction: TCreateParkingTransaction): Promise<TParkingTransaction> {
+    return await this.parkingTransactionRepository.create(parkingTransaction);
   }
 
-  async updateParkingTransaction(id: string, parkingTransaction: Partial<TParkingTransaction>): Promise<TParkingTransaction | null> {
+  async update(id: string, parkingTransaction: Partial<TParkingTransaction>): Promise<TParkingTransaction | null> {
     return await this.parkingTransactionRepository.update(id, parkingTransaction);
   }
 }

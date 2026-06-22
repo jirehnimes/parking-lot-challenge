@@ -13,18 +13,21 @@ export class ParkingTransactionRepository {
     logClassInitialized(ParkingTransactionRepository.name);
   }
 
-  async allParkingTransactions(): Promise<TParkingTransaction[]> {
+  async findAll(): Promise<TParkingTransaction[]> {
     return await this.parkingTransactionModel.findAll();
   }
 
-  async findParkingTransactionByLicensePlate(licensePlate: string): Promise<TParkingTransaction | null> {
+  async findActiveByLicensePlate(licensePlate: string): Promise<TParkingTransaction | null> {
     const parkingTransactions = await this.parkingTransactionModel.findAll();
-    const parkingTransaction = parkingTransactions.find((transaction) => transaction.licensePlate === licensePlate);
+    // Without exitTime means active transaction
+    const activeTransaction = parkingTransactions
+      .filter((transaction) => transaction.licensePlate === licensePlate && !transaction.exitTime)
+      .sort((a, b) => new Date(b.entryTime).getTime() - new Date(a.entryTime).getTime())[0];
 
-    return parkingTransaction || null;
+    return activeTransaction || null;
   }
 
-  async createParkingTransaction({
+  async create({
     entranceID,
     parkingSlotID,
     vehicleType,
