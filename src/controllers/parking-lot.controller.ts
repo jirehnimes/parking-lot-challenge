@@ -1,7 +1,9 @@
 import type { Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
+import { ParkCarRequestDto, UnparkCarRequestDto } from '@/dto/parking-lot.dto';
 import { ParkingLotService } from '@/services';
 import { logClassInitialized } from '@/utils/common.util';
+import { ValidateRequest } from '@/validators/request.validator';
 
 @injectable()
 export class ParkingLotController {
@@ -9,24 +11,30 @@ export class ParkingLotController {
   private parkingLotService!: ParkingLotService;
 
   constructor() {
+    this.getAllParkingSlots = this.getAllParkingSlots.bind(this);
+    this.parkCar = this.parkCar.bind(this);
+    this.unparkCar = this.unparkCar.bind(this);
+
     logClassInitialized(ParkingLotController.name);
   }
 
-  getAllParkingSlots = async (request: Request, response: Response) => {
+  async getAllParkingSlots(request: Request, response: Response) {
     const data = await this.parkingLotService.getAllParkingSlots();
 
     response.json({ data });
-  };
+  }
 
-  parkCar = async (request: Request, response: Response) => {
-    const data = await this.parkingLotService.parkCar();
-
-    response.json({ data });
-  };
-
-  unparkCar = async (request: Request, response: Response) => {
-    const data = await this.parkingLotService.unparkCar();
+  @ValidateRequest(ParkCarRequestDto)
+  async parkCar(request: Request, response: Response) {
+    const data = await this.parkingLotService.parkCar(request.body);
 
     response.json({ data });
-  };
+  }
+
+  @ValidateRequest(UnparkCarRequestDto)
+  async unparkCar(request: Request, response: Response) {
+    const data = await this.parkingLotService.unparkCar(request.body);
+
+    response.json({ data });
+  }
 }

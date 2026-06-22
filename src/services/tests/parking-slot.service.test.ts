@@ -20,6 +20,7 @@ type StubbedParkingSlotService = Omit<ParkingSlotService, 'parkingLotRepository'
   parkingLotRepository: {
     findParkingSlotByID: ReturnType<typeof jest.fn>;
     allAvailableParkingSlots: ReturnType<typeof jest.fn>;
+    updateStatus: ReturnType<typeof jest.fn>;
   };
 };
 
@@ -53,6 +54,7 @@ describe(ParkingSlotService.name, () => {
     parkingSlotService.parkingLotRepository = {
       findParkingSlotByID: jest.fn(),
       allAvailableParkingSlots: jest.fn(),
+      updateStatus: jest.fn(),
     };
 
     givenParkingLot(cloneSlots());
@@ -159,6 +161,35 @@ describe(ParkingSlotService.name, () => {
       const slot = await parkingSlotService.findNearestAvailable('E020000', VEHICLE_TYPE.SMALL);
 
       expect(slot?.id).toBe('SP020001');
+    });
+  });
+
+  describe('updateStatus', () => {
+    it('delegates to the repository and returns the updated slot', async () => {
+      const updatedSlot: TParkingSlot = {
+        id: 'SP010001',
+        type: PARKING_SLOT_TYPE.SMALL,
+        status: PARKING_SLOT_STATUS.OCCUPIED,
+        floor: 1,
+        location: [0, 1],
+      };
+      parkingSlotService.parkingLotRepository.updateStatus.mockResolvedValue(updatedSlot);
+
+      const slot = await parkingSlotService.updateStatus('SP010001', PARKING_SLOT_STATUS.OCCUPIED);
+
+      expect(parkingSlotService.parkingLotRepository.updateStatus).toHaveBeenCalledWith(
+        'SP010001',
+        PARKING_SLOT_STATUS.OCCUPIED,
+      );
+      expect(slot).toBe(updatedSlot);
+    });
+
+    it('returns null when the repository cannot find the slot to update', async () => {
+      parkingSlotService.parkingLotRepository.updateStatus.mockResolvedValue(null);
+
+      const slot = await parkingSlotService.updateStatus('UNKNOWN', PARKING_SLOT_STATUS.OCCUPIED);
+
+      expect(slot).toBeNull();
     });
   });
 });

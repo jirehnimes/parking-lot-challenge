@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { PARKING_SLOT_TYPE, VEHICLE_TYPE } from '@/constants';
+import { type PARKING_SLOT_STATUS, PARKING_SLOT_TYPE, VEHICLE_TYPE } from '@/constants';
 import { ParkingLotRepository } from '@/database/repositories';
 import type { TParkingSlot } from '@/types/parking-lot.type';
 import { computeDistance, logClassInitialized } from '@/utils/common.util';
@@ -25,12 +25,24 @@ export class ParkingSlotService {
       throw new Error('No available parking slots for the specified vehicle type.');
     }
 
-    const nearestParkingSlot = this.computeAndGetNearestParkingSlot(entrance, availableParkingSlots);
+    const nearestParkingSlot = this.computeAndGetNearestParkingSlot(
+      entrance,
+      availableParkingSlots,
+    );
 
     return nearestParkingSlot;
   }
 
-  private async filterParkingSlotsByVehicleType(vehicleType: VEHICLE_TYPE): Promise<TParkingSlot[]> {
+  async updateStatus(
+    parkingSlotID: string,
+    status: PARKING_SLOT_STATUS,
+  ): Promise<TParkingSlot | null> {
+    return await this.parkingLotRepository.updateStatus(parkingSlotID, status);
+  }
+
+  private async filterParkingSlotsByVehicleType(
+    vehicleType: VEHICLE_TYPE,
+  ): Promise<TParkingSlot[]> {
     const availableParkingSlots = await this.parkingLotRepository.allAvailableParkingSlots();
 
     return availableParkingSlots.filter((parkingSlot) => {

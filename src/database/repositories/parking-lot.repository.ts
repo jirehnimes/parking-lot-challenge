@@ -72,6 +72,16 @@ export class ParkingLotRepository {
     return await this.parkingLotModel.findById(id);
   }
 
+  async updateStatus(parkingSlotID: string, status: PARKING_SLOT_STATUS): Promise<TParkingSlot | null> {
+    const parkingSlot = await this.findParkingSlotByID(parkingSlotID);
+
+    if (!parkingSlot) {
+      return null;
+    }
+
+    return await this.parkingLotModel.update(parkingSlotID, { status });
+  }
+
   private createID(
     parkingSlotType: PARKING_SLOT_TYPE,
     floor: string,

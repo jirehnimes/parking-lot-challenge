@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
-import { VEHICLE_TYPE } from '@/constants';
+import { PARKING_SLOT_STATUS } from '@/constants';
 import { ParkingLotRepository } from '@/database/repositories';
-import type { TParkingSlot } from '@/types/parking-lot.type';
+import type { TParkCarRequest, TParkingSlot, TUnparkCarRequest } from '@/types/parking-lot.type';
 import type { TParkingTransaction } from '@/types/parking-transaction.type';
 import { logClassInitialized } from '@/utils/common.util';
 import { ParkingFareService } from './parking-fare.service';
@@ -26,23 +26,9 @@ export class ParkingLotService {
     logClassInitialized(ParkingLotService.name);
   }
 
-  // {
-  //   "id": "E010002",
-  //   "type": "E",
-  //   "status": "A",
-  //   "floor": 1,
-  //   "location": [
-  //     0,
-  //     2
-  //   ]
-  // },
-  async parkCar(): Promise<TParkingTransaction> {
-    const request = {
-      entranceID: 'E010002',
-      vehicleType: VEHICLE_TYPE.SMALL,
-      licensePlate: 'ABC123',
-      entryTime: new Date().toISOString(),
-    };
+  async parkCar(request: TParkCarRequest): Promise<TParkingTransaction> {
+    // TODO: Add a validation if the car with the same license plate is already parked and not yet unparked. This can be done by checking if there's an active parking transaction for the given license plate.
+
     const nearestParkingSlot = await this.parkingSlotService.findNearestAvailable(
       request.entranceID,
       request.vehicleType,
@@ -56,21 +42,24 @@ export class ParkingLotService {
       entryTime: request.entryTime,
     });
 
+    await this.parkingSlotService.updateStatus(nearestParkingSlot.id, PARKING_SLOT_STATUS.OCCUPIED);
+
     return parkingTransaction;
   }
 
-  async unparkCar(): Promise<any> {
-    const request = {
-      licensePlate: 'ABC123',
-    };
-
-    const parkingTransaction = await this.parkingTransactionService.findParkingTransactionByLicensePlate(request.licensePlate);
+  async unparkCar(request: TUnparkCarRequest): Promise<TParkingTransaction | null> {
+    const parkingTransaction =
+      await this.parkingTransactionService.findParkingTransactionByLicensePlate(
+        request.licensePlate,
+      );
 
     if (!parkingTransaction) {
       throw new Error(`No parking transaction found for license plate ${request.licensePlate}`);
     }
 
-    const parkingSlot = await this.parkingLotRepository.findParkingSlotByID(parkingTransaction?.parkingSlotID || '');
+    const parkingSlot = await this.parkingLotRepository.findParkingSlotByID(
+      parkingTransaction?.parkingSlotID || '',
+    );
 
     if (!parkingSlot) {
       throw new Error(`Parking slot with ID ${parkingTransaction.parkingSlotID} not found.`);
@@ -78,12 +67,21 @@ export class ParkingLotService {
 
     const entryTimeDate = new Date(parkingTransaction.entryTime);
     const exitTimeDate = new Date();
-    const fare = this.parkingFareService.calculateFare(parkingSlot.type, entryTimeDate, exitTimeDate);
+    const fare = this.parkingFareService.calculateFare(
+      parkingSlot.type,
+      entryTimeDate,
+      exitTimeDate,
+    );
 
-    const updatedParkingTransaction = await this.parkingTransactionService.updateParkingTransaction(parkingTransaction.id, {
-      exitTime: exitTimeDate.toISOString(),
-      fare,
-    });
+    const updatedParkingTransaction = await this.parkingTransactionService.updateParkingTransaction(
+      parkingTransaction.id,
+      {
+        exitTime: exitTimeDate.toISOString(),
+        fare,
+      },
+    );
+
+    await this.parkingSlotService.updateStatus(parkingSlot.id, PARKING_SLOT_STATUS.AVAILABLE);
 
     return updatedParkingTransaction;
   }

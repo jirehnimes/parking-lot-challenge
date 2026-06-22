@@ -35,8 +35,23 @@ export class ParkingLotModel implements Model<TParkingSlot> {
     return await parkingSlot;
   }
 
-  async update(id: string, item: Partial<TParkingSlot>): Promise<TParkingSlot | null> {
-    throw new Error('Method not implemented.');
+  async update(id: string, data: Partial<TParkingSlot>): Promise<TParkingSlot | null> {
+    const existingParkingSlot = await this.findById(id);
+
+    if (!existingParkingSlot) {
+      return null;
+    }
+
+    const updatedParkingSlot: TParkingSlot = {
+      ...existingParkingSlot,
+      ...data,
+    };
+
+    const currentData = this.databaseService.getTableData(this.TABLE_NAME);
+    const newData = currentData.map((parkingSlot) => (parkingSlot.id === id ? updatedParkingSlot : parkingSlot));
+    this.databaseService.updateTableData(this.TABLE_NAME, newData);
+
+    return updatedParkingSlot;
   }
 
   async delete(id: string): Promise<boolean> {

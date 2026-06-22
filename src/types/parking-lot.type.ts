@@ -15,3 +15,11 @@ export type TParkingSlot = {
   floor: number;
   location: TParkingSlotLocation;
 };
+
+export type TParkCarRequest = {
+  entranceID: string;
+} & TParkingVehicleRequest;
+
+export type TUnparkCarRequest = {
+  licensePlate: string;
+};
